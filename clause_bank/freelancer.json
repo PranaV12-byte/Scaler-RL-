@@ -1,0 +1,337 @@
+[
+  {
+    "id": "freelancer_ip_ownership_001",
+    "category": "ip_ownership",
+    "text_template": "All work product, including drafts and source files, is owned by the client upon {ownership_trigger}.",
+    "parameters": {
+      "ownership_trigger": {"type": "choice", "values": ["final payment", "first payment", "project start"]}
+    },
+    "risk_level": 0.62,
+    "flexibility": 0.47,
+    "rewrite_options": [
+      {
+        "id": "ip_transfer_on_final_payment",
+        "description": "Transfer IP only after final payment is completed",
+        "quality": 0.75,
+        "counterparty_acceptance": 0.86
+      },
+      {
+        "id": "ip_client_license_until_paid",
+        "description": "Grant limited client license until full payment, then transfer ownership",
+        "quality": 0.82,
+        "counterparty_acceptance": 0.68
+      },
+      {
+        "id": "ip_freelancer_retains_tools",
+        "description": "Client owns deliverables but freelancer retains pre-existing tools and templates",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.8
+      }
+    ],
+    "linked_clauses": ["freelancer_payment_001"],
+    "link_effect": "Narrowing immediate IP transfer can lead to requests for earlier milestone payments."
+  },
+  {
+    "id": "freelancer_ip_ownership_002",
+    "category": "ip_ownership",
+    "text_template": "Freelancer grants the client a {license_scope} license to portfolio assets used in the deliverables.",
+    "parameters": {
+      "license_scope": {"type": "choice", "values": ["non-exclusive", "exclusive", "exclusive perpetual"]}
+    },
+    "risk_level": 0.29,
+    "flexibility": 0.58,
+    "rewrite_options": [
+      {
+        "id": "ip_license_nonexclusive_perpetual",
+        "description": "Use a non-exclusive perpetual license for embedded portfolio assets",
+        "quality": 0.6,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "ip_buyout_option",
+        "description": "Add optional paid buyout for exclusive rights to portfolio assets",
+        "quality": 0.78,
+        "counterparty_acceptance": 0.63
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_scope_001",
+    "category": "scope",
+    "text_template": "Project scope includes {deliverable_count} deliverables with up to {feature_count} core features each.",
+    "parameters": {
+      "deliverable_count": {"type": "choice", "values": ["2", "3", "4"]},
+      "feature_count": {"type": "choice", "values": ["3", "5", "8"]}
+    },
+    "risk_level": 0.35,
+    "flexibility": 0.66,
+    "rewrite_options": [
+      {
+        "id": "scope_define_acceptance_criteria",
+        "description": "Attach explicit acceptance criteria for each deliverable",
+        "quality": 0.72,
+        "counterparty_acceptance": 0.82
+      },
+      {
+        "id": "scope_reduce_features",
+        "description": "Limit each deliverable to 3 core features",
+        "quality": 0.62,
+        "counterparty_acceptance": 0.88
+      }
+    ],
+    "linked_clauses": ["freelancer_non_compete_001"],
+    "link_effect": "Narrowing non-compete obligations may prompt broader scope expectations."
+  },
+  {
+    "id": "freelancer_scope_002",
+    "category": "scope",
+    "text_template": "Out-of-scope requests are handled through change orders billed at {change_order_rate} per hour.",
+    "parameters": {
+      "change_order_rate": {"type": "choice", "values": ["$60", "$90", "$120"]}
+    },
+    "risk_level": 0.18,
+    "flexibility": 0.73,
+    "rewrite_options": [
+      {
+        "id": "scope_preapprove_small_changes",
+        "description": "Include up to 4 hours of minor change requests without a formal change order",
+        "quality": 0.55,
+        "counterparty_acceptance": 0.92
+      },
+      {
+        "id": "scope_change_order_sla",
+        "description": "Require written approval within 3 business days for change orders",
+        "quality": 0.66,
+        "counterparty_acceptance": 0.8
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_payment_001",
+    "category": "payment",
+    "text_template": "Client pays a {deposit_percent}% deposit, then milestone payments every {milestone_days} days.",
+    "parameters": {
+      "deposit_percent": {"type": "choice", "values": ["20", "30", "40"]},
+      "milestone_days": {"type": "choice", "values": ["14", "21", "30"]}
+    },
+    "risk_level": 0.44,
+    "flexibility": 0.52,
+    "rewrite_options": [
+      {
+        "id": "payment_30_deposit",
+        "description": "Set deposit at 30% with milestone billing",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.79
+      },
+      {
+        "id": "payment_weekly_invoices",
+        "description": "Switch to weekly invoicing for work completed",
+        "quality": 0.76,
+        "counterparty_acceptance": 0.58
+      },
+      {
+        "id": "payment_net_15",
+        "description": "Require payment due within 15 days of invoice",
+        "quality": 0.65,
+        "counterparty_acceptance": 0.84
+      }
+    ],
+    "linked_clauses": ["freelancer_ip_ownership_001"],
+    "link_effect": "Earlier IP transfer often triggers stronger payment timing demands."
+  },
+  {
+    "id": "freelancer_payment_002",
+    "category": "payment",
+    "text_template": "Late invoices accrue {late_interest}% monthly interest after a {grace_days}-day grace period.",
+    "parameters": {
+      "late_interest": {"type": "choice", "values": ["1.0", "1.5", "2.0"]},
+      "grace_days": {"type": "choice", "values": ["5", "10", "15"]}
+    },
+    "risk_level": 0.32,
+    "flexibility": 0.61,
+    "rewrite_options": [
+      {
+        "id": "payment_interest_1",
+        "description": "Cap late interest at 1.0% monthly",
+        "quality": 0.58,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "payment_grace_15",
+        "description": "Extend grace period to 15 days",
+        "quality": 0.64,
+        "counterparty_acceptance": 0.84
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_confidentiality_001",
+    "category": "confidentiality",
+    "text_template": "Confidentiality obligations survive for {nda_years} years, covering all non-public business information.",
+    "parameters": {
+      "nda_years": {"type": "choice", "values": ["2", "3", "5"]}
+    },
+    "risk_level": 0.27,
+    "flexibility": 0.63,
+    "rewrite_options": [
+      {
+        "id": "confidentiality_3_years",
+        "description": "Set confidentiality period to 3 years",
+        "quality": 0.55,
+        "counterparty_acceptance": 0.93
+      },
+      {
+        "id": "confidentiality_trade_secrets_perpetual",
+        "description": "Use 3 years generally, with perpetual protection for trade secrets",
+        "quality": 0.8,
+        "counterparty_acceptance": 0.64
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_confidentiality_002",
+    "category": "confidentiality",
+    "text_template": "Freelancer may disclose confidential information to subcontractors subject to {subcontractor_condition}.",
+    "parameters": {
+      "subcontractor_condition": {"type": "choice", "values": ["equivalent NDA obligations", "client pre-approval", "need-to-know basis"]}
+    },
+    "risk_level": 0.21,
+    "flexibility": 0.69,
+    "rewrite_options": [
+      {
+        "id": "confidentiality_client_approval",
+        "description": "Require written client approval before any subcontractor disclosure",
+        "quality": 0.62,
+        "counterparty_acceptance": 0.86
+      },
+      {
+        "id": "confidentiality_named_subcontractors",
+        "description": "Allow only named subcontractors bound by equivalent NDAs",
+        "quality": 0.71,
+        "counterparty_acceptance": 0.74
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_non_compete_001",
+    "category": "non_compete",
+    "text_template": "Freelancer may not provide similar services in {restricted_region} for {restriction_months} months after project completion.",
+    "parameters": {
+      "restricted_region": {"type": "choice", "values": ["the client's core market", "North America", "global markets"]},
+      "restriction_months": {"type": "choice", "values": ["6", "12", "24"]}
+    },
+    "risk_level": 0.58,
+    "flexibility": 0.39,
+    "rewrite_options": [
+      {
+        "id": "noncompete_6_month_core_market",
+        "description": "Limit non-compete to 6 months in the client's core market",
+        "quality": 0.82,
+        "counterparty_acceptance": 0.66
+      },
+      {
+        "id": "noncompete_named_competitors",
+        "description": "Apply restrictions only to a named list of direct competitors",
+        "quality": 0.88,
+        "counterparty_acceptance": 0.48
+      },
+      {
+        "id": "noncompete_12_month_regional",
+        "description": "Use a 12-month regional restriction instead of global",
+        "quality": 0.68,
+        "counterparty_acceptance": 0.78
+      }
+    ],
+    "linked_clauses": ["freelancer_scope_001"],
+    "link_effect": "If non-compete limits are narrowed, the client may request broader service scope commitments."
+  },
+  {
+    "id": "freelancer_non_compete_002",
+    "category": "non_compete",
+    "text_template": "Non-solicitation of client employees applies for {nonsolicit_months} months after termination.",
+    "parameters": {
+      "nonsolicit_months": {"type": "choice", "values": ["6", "12", "18"]}
+    },
+    "risk_level": 0.16,
+    "flexibility": 0.76,
+    "rewrite_options": [
+      {
+        "id": "nonsolicit_6_months",
+        "description": "Reduce non-solicitation period to 6 months",
+        "quality": 0.6,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "nonsolicit_exclude_general_ads",
+        "description": "Exclude hires from general public job advertisements",
+        "quality": 0.72,
+        "counterparty_acceptance": 0.79
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_revisions_001",
+    "category": "revisions",
+    "text_template": "The fee includes up to {included_revisions} revision rounds; additional revisions are billed at {extra_revision_rate} per hour.",
+    "parameters": {
+      "included_revisions": {"type": "choice", "values": ["1", "2", "3"]},
+      "extra_revision_rate": {"type": "choice", "values": ["$50", "$75", "$100"]}
+    },
+    "risk_level": 0.53,
+    "flexibility": 0.49,
+    "rewrite_options": [
+      {
+        "id": "revisions_include_3",
+        "description": "Include 3 revision rounds before extra fees",
+        "quality": 0.74,
+        "counterparty_acceptance": 0.71
+      },
+      {
+        "id": "revisions_lower_extra_rate",
+        "description": "Set additional revision rate at $50 per hour",
+        "quality": 0.66,
+        "counterparty_acceptance": 0.82
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "freelancer_revisions_002",
+    "category": "revisions",
+    "text_template": "Revision requests must be submitted within {revision_window_days} days of delivery.",
+    "parameters": {
+      "revision_window_days": {"type": "choice", "values": ["7", "14", "21"]}
+    },
+    "risk_level": 0.41,
+    "flexibility": 0.54,
+    "rewrite_options": [
+      {
+        "id": "revisions_window_21",
+        "description": "Set revision request window to 21 days",
+        "quality": 0.63,
+        "counterparty_acceptance": 0.85
+      },
+      {
+        "id": "revisions_pause_for_client_delay",
+        "description": "Pause revision window when client feedback is delayed",
+        "quality": 0.77,
+        "counterparty_acceptance": 0.59
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  }
+]

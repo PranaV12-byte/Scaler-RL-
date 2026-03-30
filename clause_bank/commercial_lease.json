@@ -1,0 +1,353 @@
+[
+  {
+    "id": "lease_rent_001",
+    "category": "rent",
+    "text_template": "Base rent starts at {base_rent} per month with annual escalation of {escalation_rate}%.",
+    "parameters": {
+      "base_rent": {"type": "choice", "values": ["$8,500", "$10,000", "$12,500"]},
+      "escalation_rate": {"type": "choice", "values": ["2", "3", "5"]}
+    },
+    "risk_level": 0.66,
+    "flexibility": 0.31,
+    "rewrite_options": [
+      {
+        "id": "rent_cap_escalation_2",
+        "description": "Cap annual rent escalation at 2%",
+        "quality": 0.82,
+        "counterparty_acceptance": 0.54
+      },
+      {
+        "id": "rent_stepup_with_free_month",
+        "description": "Allow step-up schedule with one month free rent in year one",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.66
+      },
+      {
+        "id": "rent_fixed_first_two_years",
+        "description": "Fix rent for first two years before escalation begins",
+        "quality": 0.88,
+        "counterparty_acceptance": 0.4
+      }
+    ],
+    "linked_clauses": ["lease_maintenance_001", "lease_subletting_001"],
+    "link_effect": "Reducing rent pressure often leads to stricter maintenance allocation and tighter subletting economics."
+  },
+  {
+    "id": "lease_rent_002",
+    "category": "rent",
+    "text_template": "Tenant pays common area maintenance at {cam_model} with reconciliation every {reconcile_period}.",
+    "parameters": {
+      "cam_model": {"type": "choice", "values": ["actual pass-through", "base year stop", "capped at 6% annual increase"]},
+      "reconcile_period": {"type": "choice", "values": ["quarter", "half-year", "year"]}
+    },
+    "risk_level": 0.27,
+    "flexibility": 0.42,
+    "rewrite_options": [
+      {
+        "id": "rent_cam_cap_4",
+        "description": "Cap annual CAM increase at 4%",
+        "quality": 0.78,
+        "counterparty_acceptance": 0.58
+      },
+      {
+        "id": "rent_cam_audit_right",
+        "description": "Add annual CAM audit rights for tenant",
+        "quality": 0.68,
+        "counterparty_acceptance": 0.74
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_maintenance_001",
+    "category": "maintenance",
+    "text_template": "Tenant is responsible for all interior and structural repairs above {repair_threshold} per incident.",
+    "parameters": {
+      "repair_threshold": {"type": "choice", "values": ["$500", "$1,000", "$2,500"]}
+    },
+    "risk_level": 0.57,
+    "flexibility": 0.28,
+    "rewrite_options": [
+      {
+        "id": "maintenance_landlord_structure",
+        "description": "Landlord remains responsible for structural and roof systems",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.36
+      },
+      {
+        "id": "maintenance_raise_threshold_2500",
+        "description": "Raise tenant repair threshold to $2,500",
+        "quality": 0.72,
+        "counterparty_acceptance": 0.62
+      },
+      {
+        "id": "maintenance_shared_hvac",
+        "description": "Share major HVAC replacement costs 50/50",
+        "quality": 0.66,
+        "counterparty_acceptance": 0.69
+      }
+    ],
+    "linked_clauses": ["lease_rent_001"],
+    "link_effect": "Shifting maintenance burden back to landlord can trigger demands for stronger rent escalations."
+  },
+  {
+    "id": "lease_maintenance_002",
+    "category": "maintenance",
+    "text_template": "Landlord maintenance response is commercially reasonable, typically within {response_window} business days.",
+    "parameters": {
+      "response_window": {"type": "choice", "values": ["2", "5", "10"]}
+    },
+    "risk_level": 0.19,
+    "flexibility": 0.47,
+    "rewrite_options": [
+      {
+        "id": "maintenance_response_2_days",
+        "description": "Require response within 2 business days",
+        "quality": 0.64,
+        "counterparty_acceptance": 0.72
+      },
+      {
+        "id": "maintenance_emergency_24h",
+        "description": "Require 24-hour response for emergencies",
+        "quality": 0.76,
+        "counterparty_acceptance": 0.57
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_guarantee_001",
+    "category": "guarantee",
+    "text_template": "Tenant principal must provide a personal guarantee for {guarantee_duration} and maintain a security deposit of {security_deposit}.",
+    "parameters": {
+      "guarantee_duration": {"type": "choice", "values": ["full term", "first 24 months", "first 12 months"]},
+      "security_deposit": {"type": "choice", "values": ["2 months rent", "4 months rent", "6 months rent"]}
+    },
+    "risk_level": 0.73,
+    "flexibility": 0.24,
+    "rewrite_options": [
+      {
+        "id": "guarantee_burnoff_12mo",
+        "description": "Convert to burn-off guarantee ending after 12 on-time months",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.34
+      },
+      {
+        "id": "guarantee_reduce_deposit_2mo",
+        "description": "Reduce security deposit to 2 months rent",
+        "quality": 0.74,
+        "counterparty_acceptance": 0.55
+      },
+      {
+        "id": "guarantee_letter_of_credit",
+        "description": "Replace personal guarantee with letter of credit",
+        "quality": 0.81,
+        "counterparty_acceptance": 0.46
+      }
+    ],
+    "linked_clauses": ["lease_termination_001", "lease_insurance_002"],
+    "link_effect": "Reducing guarantee protections typically causes stricter termination penalties or higher insurance/security requirements."
+  },
+  {
+    "id": "lease_guarantee_002",
+    "category": "guarantee",
+    "text_template": "Failure to replenish deposit within {replenish_days} days is a lease default.",
+    "parameters": {
+      "replenish_days": {"type": "choice", "values": ["5", "10", "15"]}
+    },
+    "risk_level": 0.14,
+    "flexibility": 0.51,
+    "rewrite_options": [
+      {
+        "id": "guarantee_replenish_15",
+        "description": "Allow 15 days to replenish deposit",
+        "quality": 0.58,
+        "counterparty_acceptance": 0.82
+      },
+      {
+        "id": "guarantee_notice_before_default",
+        "description": "Require written notice and cure right before default",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.67
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_subletting_001",
+    "category": "subletting",
+    "text_template": "Subletting requires landlord consent, not to be unreasonably withheld, and landlord receives {recapture_share}% of excess subrent.",
+    "parameters": {
+      "recapture_share": {"type": "choice", "values": ["25", "50", "75"]}
+    },
+    "risk_level": 0.48,
+    "flexibility": 0.34,
+    "rewrite_options": [
+      {
+        "id": "subletting_reduce_recapture_25",
+        "description": "Limit landlord recapture to 25% of excess subrent",
+        "quality": 0.78,
+        "counterparty_acceptance": 0.52
+      },
+      {
+        "id": "subletting_response_10_days",
+        "description": "Require landlord response to sublet requests within 10 business days",
+        "quality": 0.68,
+        "counterparty_acceptance": 0.71
+      },
+      {
+        "id": "subletting_preapproved_transfers",
+        "description": "Pre-approve transfers to affiliates meeting financial criteria",
+        "quality": 0.74,
+        "counterparty_acceptance": 0.6
+      }
+    ],
+    "linked_clauses": ["lease_rent_001"],
+    "link_effect": "Broader subletting rights commonly lead to stronger rent escalation demands."
+  },
+  {
+    "id": "lease_subletting_002",
+    "category": "subletting",
+    "text_template": "Any assignment triggers an administrative fee of {assignment_fee} and landlord legal costs.",
+    "parameters": {
+      "assignment_fee": {"type": "choice", "values": ["$1,000", "$2,500", "$5,000"]}
+    },
+    "risk_level": 0.22,
+    "flexibility": 0.44,
+    "rewrite_options": [
+      {
+        "id": "subletting_fee_cap_1000",
+        "description": "Cap assignment fee at $1,000",
+        "quality": 0.64,
+        "counterparty_acceptance": 0.73
+      },
+      {
+        "id": "subletting_fee_actual_costs_only",
+        "description": "Allow only documented actual legal and processing costs",
+        "quality": 0.72,
+        "counterparty_acceptance": 0.6
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_termination_001",
+    "category": "termination",
+    "text_template": "Early termination requires payment of {termination_penalty} plus unamortized tenant improvement costs.",
+    "parameters": {
+      "termination_penalty": {"type": "choice", "values": ["6 months rent", "9 months rent", "12 months rent"]}
+    },
+    "risk_level": 0.79,
+    "flexibility": 0.23,
+    "rewrite_options": [
+      {
+        "id": "termination_penalty_6_months",
+        "description": "Limit early termination penalty to 6 months rent",
+        "quality": 0.85,
+        "counterparty_acceptance": 0.43
+      },
+      {
+        "id": "termination_tapered_penalty",
+        "description": "Use a tapered penalty that declines each lease year",
+        "quality": 0.8,
+        "counterparty_acceptance": 0.49
+      },
+      {
+        "id": "termination_replace_and_release",
+        "description": "Allow release if tenant secures a replacement tenant",
+        "quality": 0.88,
+        "counterparty_acceptance": 0.38
+      }
+    ],
+    "linked_clauses": ["lease_guarantee_001"],
+    "link_effect": "Reducing guarantee protections leads landlords to tighten early termination economics."
+  },
+  {
+    "id": "lease_termination_002",
+    "category": "termination",
+    "text_template": "Landlord may terminate for redevelopment on {redevelopment_notice} days notice with relocation at tenant cost.",
+    "parameters": {
+      "redevelopment_notice": {"type": "choice", "values": ["60", "90", "120"]}
+    },
+    "risk_level": 0.36,
+    "flexibility": 0.33,
+    "rewrite_options": [
+      {
+        "id": "termination_notice_120",
+        "description": "Require 120 days redevelopment notice",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.62
+      },
+      {
+        "id": "termination_landlord_relocation_costs",
+        "description": "Require landlord to cover documented relocation costs",
+        "quality": 0.83,
+        "counterparty_acceptance": 0.45
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_insurance_001",
+    "category": "insurance",
+    "text_template": "Tenant must maintain general liability insurance of {liability_limit} and property coverage for all improvements.",
+    "parameters": {
+      "liability_limit": {"type": "choice", "values": ["$1M", "$2M", "$5M"]}
+    },
+    "risk_level": 0.31,
+    "flexibility": 0.29,
+    "rewrite_options": [
+      {
+        "id": "insurance_limit_2m",
+        "description": "Set liability insurance requirement at $2M",
+        "quality": 0.64,
+        "counterparty_acceptance": 0.68
+      },
+      {
+        "id": "insurance_market_standard",
+        "description": "Tie insurance levels to market-standard coverage for similar tenants",
+        "quality": 0.74,
+        "counterparty_acceptance": 0.5
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "lease_insurance_002",
+    "category": "insurance",
+    "text_template": "Tenant indemnifies landlord for all claims except those arising from landlord {carveout_scope}.",
+    "parameters": {
+      "carveout_scope": {"type": "choice", "values": ["gross negligence", "negligence", "willful misconduct"]}
+    },
+    "risk_level": 0.25,
+    "flexibility": 0.26,
+    "rewrite_options": [
+      {
+        "id": "insurance_add_negligence_carveout",
+        "description": "Carve out landlord negligence from tenant indemnity",
+        "quality": 0.82,
+        "counterparty_acceptance": 0.41
+      },
+      {
+        "id": "insurance_mutual_indemnity",
+        "description": "Convert to mutual indemnity based on each party's fault",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.33
+      },
+      {
+        "id": "insurance_limit_to_third_party_claims",
+        "description": "Limit indemnity to third-party claims only",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.57
+      }
+    ],
+    "linked_clauses": ["lease_guarantee_001"],
+    "link_effect": "If insurance obligations are reduced, landlord typically demands stronger guarantee or higher deposit protections."
+  }
+]

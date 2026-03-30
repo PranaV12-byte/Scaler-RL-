@@ -1,0 +1,340 @@
+[
+  {
+    "id": "saas_payment_001",
+    "category": "payment",
+    "text_template": "Invoices are due within {invoice_days} days, and payment may be made by {payment_method}.",
+    "parameters": {
+      "invoice_days": {"type": "choice", "values": ["15", "30", "45"]},
+      "payment_method": {"type": "choice", "values": ["ACH transfer", "wire transfer", "corporate card"]}
+    },
+    "risk_level": 0.24,
+    "flexibility": 0.82,
+    "rewrite_options": [
+      {
+        "id": "payment_extend_45",
+        "description": "Extend payment deadline to 45 days",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "payment_extend_60",
+        "description": "Extend payment deadline to 60 days",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.65
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_payment_002",
+    "category": "payment",
+    "text_template": "Late payments incur a {late_fee}% monthly fee and may trigger suspension after {suspension_days} days.",
+    "parameters": {
+      "late_fee": {"type": "choice", "values": ["1.0", "1.5", "2.0"]},
+      "suspension_days": {"type": "choice", "values": ["15", "30", "45"]}
+    },
+    "risk_level": 0.45,
+    "flexibility": 0.68,
+    "rewrite_options": [
+      {
+        "id": "late_fee_cap_1",
+        "description": "Cap late fee at 1.0% monthly",
+        "quality": 0.75,
+        "counterparty_acceptance": 0.8
+      },
+      {
+        "id": "suspension_after_45",
+        "description": "Allow suspension only after 45 days",
+        "quality": 0.6,
+        "counterparty_acceptance": 0.92
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_liability_001",
+    "category": "liability",
+    "text_template": "Total liability is capped at {cap_basis} for any {cap_period} period.",
+    "parameters": {
+      "cap_basis": {"type": "choice", "values": ["fees paid in last 3 months", "$10,000", "fees paid in last 6 months"]},
+      "cap_period": {"type": "choice", "values": ["12-month", "contract", "rolling 6-month"]}
+    },
+    "risk_level": 0.82,
+    "flexibility": 0.41,
+    "rewrite_options": [
+      {
+        "id": "liability_12mo_fees",
+        "description": "Raise cap to 12 months of fees paid",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.72
+      },
+      {
+        "id": "liability_6mo_fees",
+        "description": "Raise cap to 6 months of fees paid",
+        "quality": 0.65,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "liability_carveout",
+        "description": "Add carve-outs for confidentiality and data breach claims",
+        "quality": 0.8,
+        "counterparty_acceptance": 0.74
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_liability_002",
+    "category": "liability",
+    "text_template": "Neither party is liable for indirect damages, including {excluded_damage} and lost profits.",
+    "parameters": {
+      "excluded_damage": {"type": "choice", "values": ["business interruption", "data restoration costs", "regulatory fines"]}
+    },
+    "risk_level": 0.28,
+    "flexibility": 0.73,
+    "rewrite_options": [
+      {
+        "id": "exclude_only_consequential",
+        "description": "Limit exclusion to consequential damages only",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.86
+      },
+      {
+        "id": "restore_regulatory_recovery",
+        "description": "Allow recovery for regulatory fines from vendor negligence",
+        "quality": 0.85,
+        "counterparty_acceptance": 0.58
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_sla_001",
+    "category": "sla",
+    "text_template": "Service availability target is {uptime_target}% monthly uptime with credits up to {credit_cap}% of monthly fees.",
+    "parameters": {
+      "uptime_target": {"type": "choice", "values": ["99.5", "99.9", "99.95"]},
+      "credit_cap": {"type": "choice", "values": ["10", "20", "30"]}
+    },
+    "risk_level": 0.22,
+    "flexibility": 0.77,
+    "rewrite_options": [
+      {
+        "id": "sla_higher_credit_cap",
+        "description": "Increase service credit cap to 30%",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.84
+      },
+      {
+        "id": "sla_tighter_uptime",
+        "description": "Set uptime commitment at 99.95%",
+        "quality": 0.8,
+        "counterparty_acceptance": 0.61
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_sla_002",
+    "category": "sla",
+    "text_template": "Critical incidents receive first response within {critical_response} hours and standard incidents within {standard_response} hours.",
+    "parameters": {
+      "critical_response": {"type": "choice", "values": ["1", "2", "4"]},
+      "standard_response": {"type": "choice", "values": ["8", "12", "24"]}
+    },
+    "risk_level": 0.38,
+    "flexibility": 0.64,
+    "rewrite_options": [
+      {
+        "id": "sla_critical_1h",
+        "description": "Require 1-hour response for critical incidents",
+        "quality": 0.75,
+        "counterparty_acceptance": 0.68
+      },
+      {
+        "id": "sla_standard_8h",
+        "description": "Require 8-hour response for standard incidents",
+        "quality": 0.55,
+        "counterparty_acceptance": 0.9
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_data_handling_001",
+    "category": "data_handling",
+    "text_template": "Vendor may use customer data for {secondary_use} and provides breach notice within {breach_notice_hours} hours.",
+    "parameters": {
+      "secondary_use": {"type": "choice", "values": ["service analytics", "product improvement", "internal benchmarking"]},
+      "breach_notice_hours": {"type": "choice", "values": ["24", "72", "120"]}
+    },
+    "risk_level": 0.76,
+    "flexibility": 0.36,
+    "rewrite_options": [
+      {
+        "id": "data_notice_24",
+        "description": "Require breach notice within 24 hours",
+        "quality": 0.85,
+        "counterparty_acceptance": 0.62
+      },
+      {
+        "id": "data_limit_use",
+        "description": "Limit data use to service delivery only",
+        "quality": 0.95,
+        "counterparty_acceptance": 0.4
+      },
+      {
+        "id": "data_optout_analytics",
+        "description": "Allow analytics use only with customer opt-out rights",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.74
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_data_handling_002",
+    "category": "data_handling",
+    "text_template": "Data exports are available in {export_format} format with retention for {retention_days} days after termination.",
+    "parameters": {
+      "export_format": {"type": "choice", "values": ["CSV", "JSON", "industry-standard interoperable"]},
+      "retention_days": {"type": "choice", "values": ["30", "60", "90"]}
+    },
+    "risk_level": 0.26,
+    "flexibility": 0.79,
+    "rewrite_options": [
+      {
+        "id": "data_retention_90",
+        "description": "Set post-termination retention to 90 days",
+        "quality": 0.65,
+        "counterparty_acceptance": 0.88
+      },
+      {
+        "id": "data_export_interop",
+        "description": "Require interoperable export formats",
+        "quality": 0.72,
+        "counterparty_acceptance": 0.8
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_termination_001",
+    "category": "termination",
+    "text_template": "Either party may terminate for convenience with {notice_days} days written notice and pay fees through the notice period.",
+    "parameters": {
+      "notice_days": {"type": "choice", "values": ["30", "60", "90"]}
+    },
+    "risk_level": 0.42,
+    "flexibility": 0.59,
+    "rewrite_options": [
+      {
+        "id": "termination_30_notice",
+        "description": "Cap convenience termination notice at 30 days",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.78
+      },
+      {
+        "id": "termination_refund_unused",
+        "description": "Add refund for prepaid unused fees",
+        "quality": 0.82,
+        "counterparty_acceptance": 0.56
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_termination_002",
+    "category": "termination",
+    "text_template": "For material breach, the breaching party has {cure_days} days to cure before termination rights apply.",
+    "parameters": {
+      "cure_days": {"type": "choice", "values": ["10", "20", "30"]}
+    },
+    "risk_level": 0.19,
+    "flexibility": 0.74,
+    "rewrite_options": [
+      {
+        "id": "termination_cure_15",
+        "description": "Set cure period to 15 days",
+        "quality": 0.6,
+        "counterparty_acceptance": 0.9
+      },
+      {
+        "id": "termination_immediate_security",
+        "description": "Allow immediate termination for severe security breaches",
+        "quality": 0.8,
+        "counterparty_acceptance": 0.66
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_auto_renewal_001",
+    "category": "auto_renewal",
+    "text_template": "The agreement renews automatically for {renewal_term} unless either party gives notice at least {notice_window} days before renewal.",
+    "parameters": {
+      "renewal_term": {"type": "choice", "values": ["12 months", "24 months"]},
+      "notice_window": {"type": "choice", "values": ["30", "60", "90"]}
+    },
+    "risk_level": 0.21,
+    "flexibility": 0.71,
+    "rewrite_options": [
+      {
+        "id": "renewal_notice_90",
+        "description": "Require at least 90 days renewal notice",
+        "quality": 0.65,
+        "counterparty_acceptance": 0.86
+      },
+      {
+        "id": "renewal_opt_in",
+        "description": "Change auto-renewal to explicit opt-in renewal",
+        "quality": 0.9,
+        "counterparty_acceptance": 0.45
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  },
+  {
+    "id": "saas_auto_renewal_002",
+    "category": "auto_renewal",
+    "text_template": "On each renewal, fees increase by {price_increase}% unless the customer terminates before the notice date.",
+    "parameters": {
+      "price_increase": {"type": "choice", "values": ["3", "5", "8"]}
+    },
+    "risk_level": 0.74,
+    "flexibility": 0.33,
+    "rewrite_options": [
+      {
+        "id": "renewal_cap_3",
+        "description": "Cap annual price increase at 3%",
+        "quality": 0.85,
+        "counterparty_acceptance": 0.55
+      },
+      {
+        "id": "renewal_notice_120",
+        "description": "Require 120-day notice before any price increase",
+        "quality": 0.7,
+        "counterparty_acceptance": 0.73
+      },
+      {
+        "id": "renewal_no_auto_increase",
+        "description": "Remove automatic renewal price increases",
+        "quality": 0.95,
+        "counterparty_acceptance": 0.28
+      }
+    ],
+    "linked_clauses": [],
+    "link_effect": null
+  }
+]

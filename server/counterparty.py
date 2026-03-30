@@ -207,4 +207,4 @@ def apply_clause_links(
         linked = clause_by_id.get(linked_id)
         if linked is None:
             continue
-        linked["flexibility"] = max(0.0, float(linked["flexibility"]) - 0.1)
+        linked["flexibility"] = max(0.0, float(linked["flexibility"]) - 0.25)

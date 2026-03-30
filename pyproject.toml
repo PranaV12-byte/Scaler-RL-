@@ -1,0 +1,19 @@
+[project]
+name = "contract-negotiation-env"
+version = "1.0.0"
+description = "RL environment for AI-powered contract clause negotiation"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.2",
+    "fastapi",
+    "uvicorn",
+    "pydantic>=2.0",
+    "openai",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
