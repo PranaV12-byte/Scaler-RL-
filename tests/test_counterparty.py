@@ -206,7 +206,7 @@ def test_clause_link_effects_reduce_linked_flexibility() -> None:
     ]
 
     apply_clause_links("source", "reject", clauses)
-    assert clauses[1]["flexibility"] == 0.4
+    assert clauses[1]["flexibility"] == 0.25
 
 
 def test_message_templates_render_category_and_counter_description() -> None:
