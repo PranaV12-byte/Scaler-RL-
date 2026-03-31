@@ -218,6 +218,29 @@ def test_message_templates_render_category_and_counter_description() -> None:
     assert "{category}" not in message
 
 
+def test_rewrite_lowest_quality_option_with_mid_acceptance_is_refused_not_self_countered() -> None:
+    engine = CounterpartyEngine()
+    clause = _clause(
+        rewrite_options=[
+            {
+                "id": "only_option",
+                "description": "The only option",
+                "quality": 0.3,
+                "counterparty_acceptance": 0.5,
+            },
+        ]
+    )
+    response = engine.process_action(
+        NegotiationAction(
+            action="rewrite", clause_index=0, rewrite_option_id="only_option"
+        ),
+        clause,
+        [],
+    )
+    assert response.outcome == "refused"
+    assert response.counter_option_id is None
+
+
 def test_temperature_is_clamped_between_zero_and_one() -> None:
     assert CounterpartyEngine.clamp_temperature(0.98, 0.1) == 1.0
     assert CounterpartyEngine.clamp_temperature(0.02, -0.2) == 0.0

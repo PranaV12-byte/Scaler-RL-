@@ -1,4 +1,4 @@
-from openenv.core.env_server.interfaces import Environment
+from openenv.core.env_server.interfaces import Environment, EnvironmentMetadata
 
 from models import (
     ClauseView,
@@ -40,6 +40,7 @@ class ContractNegotiationEnv(
             counterparty_name="",
         )
         self._client_priorities: list[str] = []
+        self._episode_done = False
         self._state = NegotiationState()
 
     def reset(
@@ -56,6 +57,7 @@ class ContractNegotiationEnv(
         self._steps_taken = 0
         self._max_steps = generated.task_config.max_steps
         self._deal_alive = True
+        self._episode_done = False
 
         self._clause_internals = []
         for index, clause in enumerate(generated.clauses):
@@ -92,6 +94,9 @@ class ContractNegotiationEnv(
         timeout_s: float | None = None,
         **kwargs: object,
     ) -> NegotiationObservation:
+        if self._episode_done:
+            return self._build_terminal_observation("Episode already complete.")
+
         self._steps_taken += 1
 
         if action.action == "finalize":
@@ -144,6 +149,13 @@ class ContractNegotiationEnv(
     @property
     def state(self) -> NegotiationState:
         return self._state
+
+    def get_metadata(self) -> EnvironmentMetadata:
+        return EnvironmentMetadata(
+            name="contract_negotiation",
+            description="Contract clause negotiation environment — balance risk reduction against keeping the deal alive.",
+            version="1.0.0",
+        )
 
     def _validate_action(self, action: NegotiationAction) -> tuple[bool, str]:
         if action.action not in {"accept", "reject", "rewrite"}:
@@ -251,6 +263,7 @@ class ContractNegotiationEnv(
         )
 
     def _build_terminal_observation(self, message: str) -> NegotiationObservation:
+        self._episode_done = True
         final_reward = Grader.compute_final_reward(
             clauses=self._clause_internals,
             client_priorities=self._client_priorities,

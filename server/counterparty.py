@@ -150,16 +150,17 @@ class CounterpartyEngine:
             counter_option = self._best_counter_offer(
                 clause_internal["rewrite_options"], selected
             )
-            return CounterpartyResponse(
-                outcome="countered",
-                temp_delta=-0.08,
-                message=MessageTemplates.get_message(
-                    "countered",
-                    category,
-                    counter_description=counter_option["description"],
-                ),
-                counter_option_id=counter_option["id"],
-            )
+            if counter_option is not None:
+                return CounterpartyResponse(
+                    outcome="countered",
+                    temp_delta=-0.08,
+                    message=MessageTemplates.get_message(
+                        "countered",
+                        category,
+                        counter_description=counter_option["description"],
+                    ),
+                    counter_option_id=counter_option["id"],
+                )
 
         return CounterpartyResponse(
             outcome="refused",
@@ -177,13 +178,13 @@ class CounterpartyEngine:
     def _lowest_quality_option(self, options: list[dict]) -> dict:
         return min(options, key=lambda option: float(option["quality"]))
 
-    def _best_counter_offer(self, options: list[dict], proposed: dict) -> dict:
+    def _best_counter_offer(self, options: list[dict], proposed: dict) -> dict | None:
         proposed_quality = float(proposed["quality"])
         lower_quality = [
             option for option in options if float(option["quality"]) < proposed_quality
         ]
         if not lower_quality:
-            return proposed
+            return None
         return max(
             lower_quality,
             key=lambda option: float(option["counterparty_acceptance"]),

@@ -219,3 +219,17 @@ def test_seed_reproducibility_same_seed_same_actions_same_outcomes() -> None:
     assert [clause.status for clause in obs_one.clauses] == [
         clause.status for clause in obs_two.clauses
     ]
+
+
+def test_step_after_done_returns_same_terminal_reward_and_does_not_mutate_state() -> None:
+    env, _ = _new_env("easy_saas", 42)
+
+    terminal = env.step(NegotiationAction(action="finalize"))
+    assert terminal.done is True
+    first_reward = terminal.reward
+    first_steps = terminal.steps_taken
+
+    second = env.step(NegotiationAction(action="finalize"))
+    assert second.done is True
+    assert second.reward == first_reward
+    assert second.steps_taken == first_steps
