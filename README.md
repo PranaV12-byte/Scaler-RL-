@@ -128,8 +128,31 @@ docker run -p 7860:7860 contract-negotiation:latest
 
 ```bash
 curl http://localhost:7860/health
+curl http://localhost:7860/metadata
 curl -X POST http://localhost:7860/reset -H "Content-Type: application/json" -d '{"task_id": "easy_saas"}'
 ```
+
+> **HTTP simulation mode — stateless by design.** Each `/reset` and `/step` call runs in a fresh environment instance. Calling `/step` after `/reset` over bare HTTP will hit an uninitialised environment and return `done: true` with no clauses. This is expected framework behaviour.
+> Use the Python client (`ContractNegotiationClient`) for stateful episode play over WebSocket — see `inference.py`.
+
+If you want to test a single step in isolation, the action must be a **nested object**:
+
+```bash
+# Correct — action is a JSON object
+curl -X POST http://localhost:7860/step \
+  -H "Content-Type: application/json" \
+  -d '{"action": {"clause_index": 0, "action": "accept"}}'
+
+# Correct — finalize action
+curl -X POST http://localhost:7860/step \
+  -H "Content-Type: application/json" \
+  -d '{"action": {"action": "finalize"}}'
+
+# WRONG — flat string causes 422 "Input should be a valid dictionary"
+# -d '{"action": "finalize"}'
+```
+
+> **Note on `/state` and `/schema`:** The `/state` endpoint and the `state` field in `/schema` reflect the base OpenEnv `State` model (`episode_id`, `step_count` only). This is a framework-level constraint — the richer `NegotiationState` fields (`task_id`, `contract_type`, `negotiation_temperature`, etc.) are available in every observation response instead.
 
 ---
 
