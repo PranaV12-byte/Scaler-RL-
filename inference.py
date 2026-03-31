@@ -55,16 +55,18 @@ def _llm_action(obs_payload: str) -> dict:
         return json.loads(retry_content)
 
 
+_ACTION_FIELDS = set(NegotiationAction.model_fields)
+
+
 def run_task(env_url: str, task_id: str) -> float:
     client = ContractNegotiationClient(base_url=env_url)
-    sync = client.sync()
-
-    result = sync.reset(task_id=task_id)
-    while not result.done:
-        observation_payload = json.dumps(result.observation.model_dump(), indent=2)
-        action_data = _llm_action(observation_payload)
-        action = NegotiationAction(**action_data)
-        result = sync.step(action)
+    with client.sync() as sync:
+        result = sync.reset(task_id=task_id)
+        while not result.done:
+            observation_payload = json.dumps(result.observation.model_dump(), indent=2)
+            action_data = _llm_action(observation_payload)
+            action = NegotiationAction(**{k: v for k, v in action_data.items() if k in _ACTION_FIELDS})
+            result = sync.step(action)
 
     return float(result.reward or 0.0)
 
