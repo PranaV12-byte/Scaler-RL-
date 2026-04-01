@@ -1,3 +1,12 @@
+---
+title: Contract Negotiation
+emoji: 📄
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # Contract Clause Negotiation — OpenEnv Environment
 
 An RL environment where an AI agent negotiates contract clauses. The agent receives a full contract, identifies risky clauses, and decides to accept, reject, or rewrite each one — while keeping the deal alive.
