@@ -1,11 +1,21 @@
 import json
 import os
+import sys
 
 from openai import OpenAI
 
 from client import ContractNegotiationClient
 from models import NegotiationAction
 
+
+_REQUIRED_VARS = ["API_BASE_URL", "MODEL_NAME"]
+_missing = [v for v in _REQUIRED_VARS if v not in os.environ]
+if _missing:
+    print(f"Error: missing required environment variables: {', '.join(_missing)}", file=sys.stderr)
+    print("Set them before running:", file=sys.stderr)
+    for v in _missing:
+        print(f"  export {v}=...", file=sys.stderr)
+    sys.exit(1)
 
 llm = OpenAI(
     base_url=os.environ["API_BASE_URL"],

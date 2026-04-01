@@ -1,3 +1,4 @@
+from starlette.exceptions import HTTPException
 from openenv.core.env_server.interfaces import Environment, EnvironmentMetadata
 
 from models import (
@@ -47,6 +48,11 @@ class ContractNegotiationEnv(
         self, seed: int | None = None, episode_id: str | None = None, **kwargs: object
     ) -> NegotiationObservation:
         task_id = str(kwargs.get("task_id", "easy_saas"))
+        if task_id not in {"easy_saas", "medium_freelancer", "hard_lease"}:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Unknown task_id: {task_id!r}. Valid values: easy_saas, medium_freelancer, hard_lease",
+            )
         generated = self._generator.generate(task_id=task_id, seed=seed)
 
         self._task_id = task_id
