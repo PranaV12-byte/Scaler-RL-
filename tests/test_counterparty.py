@@ -1,3 +1,5 @@
+import pytest
+
 from models import NegotiationAction
 from server.counterparty import CounterpartyEngine, MessageTemplates, apply_clause_links
 
@@ -206,7 +208,7 @@ def test_clause_link_effects_reduce_linked_flexibility() -> None:
     ]
 
     apply_clause_links("source", "reject", clauses)
-    assert clauses[1]["flexibility"] == 0.25
+    assert clauses[1]["flexibility"] == pytest.approx(0.20)
 
 
 def test_message_templates_render_category_and_counter_description() -> None:

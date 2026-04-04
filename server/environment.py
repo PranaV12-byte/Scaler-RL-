@@ -83,7 +83,6 @@ class ContractNegotiationEnv(
                         dict(option) for option in clause.rewrite_options
                     ],
                     "linked_clauses": list(clause.linked_clauses),
-                    "link_effect": clause.link_effect,
                 }
             )
 
