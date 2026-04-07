@@ -7,23 +7,6 @@ from openai import OpenAI
 from client import ContractNegotiationClient
 from models import NegotiationAction
 
-_REQUIRED_VARS = ["API_BASE_URL", "MODEL_NAME"]
-_missing = [v for v in _REQUIRED_VARS if v not in os.environ]
-if _missing:
-    print(
-        f"Error: missing required environment variables: {', '.join(_missing)}",
-        file=sys.stderr,
-    )
-    print("Set them before running:", file=sys.stderr)
-    for v in _missing:
-        print(f"  export {v}=...", file=sys.stderr)
-    sys.exit(1)
-
-llm = OpenAI(
-    base_url=os.environ["API_BASE_URL"],
-    api_key=os.environ.get("API_KEY", "none"),
-)
-MODEL_NAME = os.environ["MODEL_NAME"]
 
 SYSTEM_PROMPT = """You are a contract negotiation expert. You review contracts clause by clause
 and decide how to handle each one to protect your client while keeping the deal alive.
@@ -37,10 +20,12 @@ Rules:
 - Use "finalize" only when important clauses are addressed.
 """
 
+_ACTION_FIELDS = set(NegotiationAction.model_fields)
 
-def _llm_action(obs_payload: str) -> dict:
+
+def _llm_action(llm: OpenAI, model: str, obs_payload: str) -> dict:
     response = llm.chat.completions.create(
-        model=MODEL_NAME,
+        model=model,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": obs_payload},
@@ -52,7 +37,7 @@ def _llm_action(obs_payload: str) -> dict:
         return json.loads(content)
     except json.JSONDecodeError:
         retry = llm.chat.completions.create(
-            model=MODEL_NAME,
+            model=model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": obs_payload},
@@ -67,28 +52,37 @@ def _llm_action(obs_payload: str) -> dict:
         return json.loads(retry_content)
 
 
-_ACTION_FIELDS = set(NegotiationAction.model_fields)
-
-
-def run_task(env_url: str, task_id: str) -> float:
+def run_task(env_url: str, task_id: str, llm: OpenAI, model: str) -> float:
     client = ContractNegotiationClient(base_url=env_url)
     with client.sync() as sync:
         result = sync.reset(task_id=task_id)
         while not result.done:
             observation_payload = json.dumps(result.observation.model_dump(), indent=2)
-            action_data = _llm_action(observation_payload)
-            action = NegotiationAction(
-                **{k: v for k, v in action_data.items() if k in _ACTION_FIELDS}
-            )
+            action_data = _llm_action(llm, model, observation_payload)
+            action = NegotiationAction(**{k: v for k, v in action_data.items() if k in _ACTION_FIELDS})
             result = sync.step(action)
 
     return float(result.reward or 0.0)
 
 
 def main() -> None:
+    _required_vars = ["API_BASE_URL"]
+    _missing = [v for v in _required_vars if v not in os.environ]
+    if _missing:
+        print(f"Error: missing required environment variables: {', '.join(_missing)}", file=sys.stderr)
+        print("Set them before running:", file=sys.stderr)
+        for v in _missing:
+            print(f"  export {v}=...", file=sys.stderr)
+        sys.exit(1)
+
+    llm = OpenAI(
+        base_url=os.environ["API_BASE_URL"],
+        api_key=os.environ.get("API_KEY", "none"),
+    )
+    model = os.environ.get("MODEL_NAME", "model")
     env_url = os.environ.get("ENV_URL", "http://localhost:7860")
     for task_id in ["easy_saas", "medium_freelancer", "hard_lease"]:
-        score = run_task(env_url, task_id)
+        score = run_task(env_url, task_id, llm, model)
         print(f"Task {task_id}: score = {score:.4f}")
 
 
