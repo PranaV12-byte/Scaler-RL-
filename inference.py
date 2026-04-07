@@ -7,11 +7,13 @@ from openai import OpenAI
 from client import ContractNegotiationClient
 from models import NegotiationAction
 
-
 _REQUIRED_VARS = ["API_BASE_URL", "MODEL_NAME"]
 _missing = [v for v in _REQUIRED_VARS if v not in os.environ]
 if _missing:
-    print(f"Error: missing required environment variables: {', '.join(_missing)}", file=sys.stderr)
+    print(
+        f"Error: missing required environment variables: {', '.join(_missing)}",
+        file=sys.stderr,
+    )
     print("Set them before running:", file=sys.stderr)
     for v in _missing:
         print(f"  export {v}=...", file=sys.stderr)
@@ -21,7 +23,7 @@ llm = OpenAI(
     base_url=os.environ["API_BASE_URL"],
     api_key=os.environ.get("API_KEY", "none"),
 )
-MODEL = os.environ["MODEL_NAME"]
+MODEL_NAME = os.environ["MODEL_NAME"]
 
 SYSTEM_PROMPT = """You are a contract negotiation expert. You review contracts clause by clause
 and decide how to handle each one to protect your client while keeping the deal alive.
@@ -38,7 +40,7 @@ Rules:
 
 def _llm_action(obs_payload: str) -> dict:
     response = llm.chat.completions.create(
-        model=MODEL,
+        model=MODEL_NAME,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": obs_payload},
@@ -50,7 +52,7 @@ def _llm_action(obs_payload: str) -> dict:
         return json.loads(content)
     except json.JSONDecodeError:
         retry = llm.chat.completions.create(
-            model=MODEL,
+            model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": obs_payload},
@@ -75,7 +77,9 @@ def run_task(env_url: str, task_id: str) -> float:
         while not result.done:
             observation_payload = json.dumps(result.observation.model_dump(), indent=2)
             action_data = _llm_action(observation_payload)
-            action = NegotiationAction(**{k: v for k, v in action_data.items() if k in _ACTION_FIELDS})
+            action = NegotiationAction(
+                **{k: v for k, v in action_data.items() if k in _ACTION_FIELDS}
+            )
             result = sync.step(action)
 
     return float(result.reward or 0.0)
