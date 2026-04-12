@@ -27,7 +27,6 @@ class GeneratedClause:
     flexibility: float
     rewrite_options: list[dict[str, Any]]
     linked_clauses: list[str]
-    link_effect: str | None
     text: str
 
 
@@ -100,7 +99,7 @@ class ContractGenerator:
 
         rng = random.Random(seed)
         bank = self._banks[task_config.contract_type]
-        sampled_templates = rng.sample(bank, task_config.clause_count)
+        sampled_templates = self._sample_preserving_links(bank, task_config.clause_count, rng)
 
         clauses: list[GeneratedClause] = []
         for template in sampled_templates:
@@ -119,7 +118,6 @@ class ContractGenerator:
                         dict(option) for option in template["rewrite_options"]
                     ],
                     linked_clauses=list(template["linked_clauses"]),
-                    link_effect=template["link_effect"],
                     text=rendered_text,
                 )
             )
@@ -138,6 +136,44 @@ class ContractGenerator:
             clauses=clauses,
             task_config=task_config,
         )
+
+    def _sample_preserving_links(
+        self,
+        bank: list[dict[str, Any]],
+        count: int,
+        rng: random.Random,
+    ) -> list[dict[str, Any]]:
+        clause_by_id = {c["id"]: c for c in bank}
+        parent: dict[str, str] = {c["id"]: c["id"] for c in bank}
+
+        def find(x: str) -> str:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for c in bank:
+            for linked_id in c.get("linked_clauses", []):
+                if linked_id in clause_by_id:
+                    rx, ry = find(c["id"]), find(linked_id)
+                    if rx != ry:
+                        parent[rx] = ry
+
+        component_map: dict[str, list[dict[str, Any]]] = {}
+        for c in bank:
+            component_map.setdefault(find(c["id"]), []).append(c)
+
+        groups = list(component_map.values())
+        rng.shuffle(groups)
+
+        selected: list[dict[str, Any]] = []
+        for group in groups:
+            if len(selected) + len(group) <= count:
+                selected.extend(group)
+            if len(selected) == count:
+                break
+
+        return selected
 
     def _load_bank(self, path: Path) -> list[dict[str, Any]]:
         with path.open("r", encoding="utf-8") as f:

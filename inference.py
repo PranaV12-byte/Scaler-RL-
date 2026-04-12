@@ -2,7 +2,10 @@ import json
 import os
 import sys
 
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv()
 
 from client import ContractNegotiationClient
 from models import NegotiationAction
@@ -79,7 +82,7 @@ def main() -> None:
         base_url=os.environ["API_BASE_URL"],
         api_key=os.environ.get("API_KEY", "none"),
     )
-    model = os.environ.get("MODEL_NAME", "model")
+    model = os.environ.get("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
     env_url = os.environ.get("ENV_URL", "http://localhost:7860")
     for task_id in ["easy_saas", "medium_freelancer", "hard_lease"]:
         score = run_task(env_url, task_id, llm, model)
@@ -87,4 +90,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main()  
