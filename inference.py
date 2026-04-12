@@ -56,16 +56,23 @@ def _llm_action(llm: OpenAI, model: str, obs_payload: str) -> dict:
 
 
 def run_task(env_url: str, task_id: str, llm: OpenAI, model: str) -> float:
+    print(f"[START] task={task_id}", flush=True)
     client = ContractNegotiationClient(base_url=env_url)
+    step_num = 0
     with client.sync() as sync:
         result = sync.reset(task_id=task_id)
         while not result.done:
+            step_num += 1
             observation_payload = json.dumps(result.observation.model_dump(), indent=2)
             action_data = _llm_action(llm, model, observation_payload)
             action = NegotiationAction(**{k: v for k, v in action_data.items() if k in _ACTION_FIELDS})
             result = sync.step(action)
+            reward = float(result.reward or 0.0)
+            print(f"[STEP] step={step_num} reward={reward}", flush=True)
 
-    return float(result.reward or 0.0)
+    score = float(result.reward or 0.0)
+    print(f"[END] task={task_id} score={score} steps={step_num}", flush=True)
+    return score
 
 
 def main() -> None:
