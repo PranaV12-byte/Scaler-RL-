@@ -30,7 +30,7 @@ class Grader:
         max_steps: int,
     ) -> float:
         if not deal_alive:
-            return 0.0
+            return 0.01
 
         risk_reduction = cls.compute_risk_reduction(clauses)
         efficiency = cls.compute_efficiency(steps_taken, max_steps)
@@ -87,4 +87,4 @@ class Grader:
 
     @staticmethod
     def _clamp(value: float) -> float:
-        return max(0.0, min(1.0, value))
+        return max(0.01, min(0.99, value))
